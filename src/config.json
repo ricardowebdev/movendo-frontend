@@ -1,0 +1,7 @@
+{
+    "apiEndpoint": "https://jsonplaceholder.typicode.com/posts",
+    "dsn": "https://56c9319951814eeaa74e5911bc60c1ef@o1128304.ingest.sentry.io/6170807",
+    "environment": "development",
+    "backendApi": "http://localhost:8000/api/"
+
+}
