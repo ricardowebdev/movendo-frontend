@@ -4,6 +4,7 @@ import CustomersTable  from './customersTable';
 import { getCustomers, deleteCustomer } from '../../services/vidly/userService';
 import paginate from '../utils/paginate';
 import Input from '../commom/input';
+import Loader from '../commom/loader';
 import _ from 'lodash';
 
 
@@ -13,12 +14,14 @@ class Customers extends Component {
         pageSize: 5,
         currentPage: 1,
         sortColumn: { path: 'title', order: 'asc' },
-        search: ''
+        search: '',
+        loading: 'true'
     }
 
     async componentDidMount() {
         this.setState({
             customers: await getCustomers(),
+            loading: ''
         })
     }
     
@@ -81,16 +84,17 @@ class Customers extends Component {
             : 'There are no customers in the database.';
                     
         return (
-            <React.Fragment>                
-                <div className="container-fluid">
-                    <div className="row align-items-end m-2">
-                        <div className="col-auto">
+            <React.Fragment>
+                <Loader isloading={this.state.loading}></Loader>
+                <div className={this.state.loading ? 'hidden' : 'container-fluid no-padding'}>
+                    <div className="row align-items-end m-2 p-1">
+                        <div className="col-md-10 col-sm-10 col-lg-11">
                             {message}
                         </div>
                     </div>
 
-                    <div className="row align-items-end m-2">
-                        <div className="col">
+                    <div className="row align-items-end m-2 p-1">
+                        <div className="col-sm-8 col-md-8 col-lg-7">
                             <Input 
                                 name='search'
                                 label='Search'
@@ -100,7 +104,7 @@ class Customers extends Component {
                                 onChange={this.handleSearch}
                             />                                     
                         </div>
-                        <div className="col-3">                                    
+                        <div className="col-sm-3 col-md-3 col-lg-2">                                    
                             <button onClick={this.handleNewCustomer}
                                     className="btn btn-primary btn-sm mb-3">
                                 <i className="fa fa-plus"></i> New customer
@@ -108,8 +112,8 @@ class Customers extends Component {
                         </div>
                     </div>
 
-                    <div className="row align-items-end m-2">
-                        <div className="col">
+                    <div className="row align-items-end m-2 p-1">
+                        <div className="col-md-11 col-sm-12 col-lg-11">
                             <CustomersTable 
                                 renderCustomers={data}
                                 sortColumn={sortColumn}
@@ -120,13 +124,15 @@ class Customers extends Component {
                         </div>    
                     </div>
 
-                    <div className="row align-items-end m-2">
-                        <Pagination
-                            itemsCount={totalCount}
-                            pageSize={pageSize}
-                            currentPage={currentPage}
-                            onPageChange={this.handlePageChange}
-                        />                        
+                    <div className="row align-items-end m-2 p-1">
+                        <div className="col-md-10 col-sm-12 col-lg-10 p-2">
+                            <Pagination
+                                itemsCount={totalCount}
+                                pageSize={pageSize}
+                                currentPage={currentPage}
+                                onPageChange={this.handlePageChange}
+                            />
+                        </div>
                     </div>
                 </div>                  
             </React.Fragment>

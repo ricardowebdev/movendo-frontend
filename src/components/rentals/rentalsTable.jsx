@@ -1,25 +1,36 @@
 import React, { Component } from 'react';
-import Table from  '../commom/Table';
 import { Link } from 'react-router-dom';
+import Table from  '../commom/Table';
+import auth from '../../services/vidly/authService';
+
+const admin = auth.isAdmin();
 
 class RentalsTable extends Component {
     columns = [
         { 
             path: 'movie.title',
             label: 'Movie',
-            content: rental => <Link to={`/rentals/${rental.id}`} ><i className="fa fa-pencil"></i> { rental.movie.title }</Link>
+            content: rental => {
+                return admin 
+                ? <Link to={`/rentals/${rental.id}`} ><span className="fc-primary link"><i className="fa fa-pencil"></i> { rental.movie.title }</span></Link>
+                : rental.movie.title;
+            }
         },
         { path: 'user.name', label: 'Customer' },        
-        { path: 'rentalDays', label: 'Rental Days' },
+        { path: 'rentalDays', label: 'Days' },
         { 
             path: 'returned',
-            label: 'Returned',
+            label: 'Return',
             content: rental => <span>{ rental.returned ? 'Yes' : 'No'  }</span>
         },
-        { path: 'created_at', label: 'Rental Date' },
+        { path: 'created_at', label: 'Date' },
         {
             key: 'delete',
-            content: rental => <button onClick={() => this.props.onDelete(rental)} className="btn btn-danger btn-sm"><i className="fa fa-trash"></i> Remove</button>
+            content: rental => {
+                return admin 
+                    ? <button onClick={() => this.props.onDelete(rental)} className="btn btn-danger btn-sm"><i className="fa fa-trash"></i></button>
+                    : '';
+            }
         },
     ]
     render() {

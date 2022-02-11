@@ -1,8 +1,12 @@
 import http from '../common/httpService';
+import config from '../../config.json';
   
-export async function getGenres() {    
-    const result = await http.get('http://localhost:8000/api/genres');
+const uri = config.backendApi + 'genres';
+
+
+export async function getGenres() {
+    const result = await http.get(`${uri}`);
     const genres = result.data;
-    // console.log();
+
     return genres.filter(g => g);
 }

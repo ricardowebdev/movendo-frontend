@@ -1,7 +1,7 @@
 import React from 'react';
 import Form from '../commom/form';
 import Joi from 'joi-browser';
-import { login } from "../../services/vidly/loginService";
+import { login, getUserInfo } from "../../services/vidly/authService";
 
 class LoginForm extends Form {
     state = {
@@ -15,16 +15,19 @@ class LoginForm extends Form {
     }
 
     doSubmit = async() => {
-        const result = await login(this.state.data);
-        result 
-            ? this.props.history.push('/movies')
-            : this.props.history.push('/login');          
+        const logged = await login(this.state.data);  
+
+        const { state } = this.props.location;
+        if (logged) {
+            await getUserInfo(); 
+            window.location = state ? state.from.pathname : '/';
+        }
     }
    
     render() {
         return (   
-            <div className="container">
-                <div className="col-6 center">
+            <div className="container-fluid center">
+                <div className="col-sm-11 col-md-9 col-lg-7 center">
                     <h1>Login</h1>
                     <form onSubmit={this.handleSubmit}>
                         { this.renderInput('email', 'E-mail', 'email', true) }

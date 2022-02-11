@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import _ from 'lodash';
 import { getMovies, deleteMovie, setLike } from "../../services/vidly/movieService";
 import { getGenres } from '../../services/vidly/genreService';
 import Pagination from '../commom/Pagination';
@@ -6,7 +7,10 @@ import ListGroup from '../commom/ListGroup';
 import paginate from '../utils/paginate';
 import MoviesTable from './MoviesTable';
 import Input from '../commom/input';
-import _ from 'lodash';
+import MoviesLoader from './moviesLoader';
+import auth from '../../services/vidly/authService';
+
+const admin = auth.isAdmin();
 
 class Movies extends Component {
     state = {
@@ -16,7 +20,8 @@ class Movies extends Component {
         currentPage: 1,
         currentGenre: '0',
         sortColumn: { path: 'title', order: 'asc' },
-        search: ''
+        search: '',
+        loading: 'true'
     }
 
     async componentDidMount() {
@@ -24,8 +29,10 @@ class Movies extends Component {
         const movies = await getMovies();
         this.setState({
             movies: movies,
-            genres: [{ id: '0', name: 'All Genres'}, ...genres]    
+            genres: [{ id: '0', name: 'All Genres'}, ...genres],
+            loading: ''
         })
+        
     }
 
     handleDelete = async(movie) =>  {
@@ -95,7 +102,7 @@ class Movies extends Component {
     }
 
     render() {
-        const { pageSize, currentPage, genres, currentGenre, sortColumn } = this.state;      
+        const { pageSize, currentPage, genres, currentGenre, sortColumn, loading } = this.state;
         const { totalCount, data } = this.getPageData();
         const message = totalCount 
             ? `Showing ${totalCount} movies in the database`
@@ -103,65 +110,76 @@ class Movies extends Component {
 
         return (
             <React.Fragment>
-                <div className="container-fluid">
-                    <div className="row align-items-left">
-                        <div className="col-auto m-2">
-                            { message }
-                        </div>
-                        
-                    </div>
-                </div>                
 
-                <div className="container-fluid">
-                    <div className="row align-items-left">
-                        <div className="col-auto m-2">
-                            <ListGroup 
-                                items={genres}
-                                onItemSelect={this.handleItemSelect}
-                                currentItem={currentGenre}
-                            />
+                <MoviesLoader loading={loading}></MoviesLoader>
+                <div className={loading ? 'hidden' : ''}>
+                    <div className="container-fluid">
+                        <div className="row align-items-left">
+                            <div className="col-md-10 col-sm-10 col-lg-10 p-2">
+                                { message }
+                            </div>                            
                         </div>
+                    </div>                
 
-                        <div className="col-lg-9 m-2">
-                            <div className="row align-items-end">
-                                <div className="col">
-                                    <Input 
-                                        name='search'
-                                        label='Search'
-                                        type='text'
-                                        value={this.state.search}
-                                        autoFocus={true}
-                                        onChange={this.handleSearch}
-                                    />                                     
-                                </div>
-                                <div className="col-3">                                    
-                                    <button onClick={this.handleNewMovie}
-                                            className="btn btn-primary btn-sm mb-3">
-                                        <i className="fa fa-plus"></i> New movie
-                                    </button>
-                                </div>
+                    <div className="container-fluid">
+                        <div className="row align-items-left">
+                            <div className="col-md-3 col-sm-7 col-lg-2 p-2">
+                                <ListGroup 
+                                    items={genres}
+                                    onItemSelect={this.handleItemSelect}
+                                    currentItem={currentGenre}
+                                />
                             </div>
-                            <MoviesTable 
-                                renderMovies={data}
-                                sortColumn={sortColumn}
-                                onLike={this.handleLike}
-                                onDelete={this.handleDelete}
-                                onSort={this.handleSort}
-                            />
-                        </div>
-                    </div>
 
-                    <div className="row justify-content-md-center">
-                        <div className="col-auto m-2">
-                            <Pagination
-                                itemsCount={totalCount}
-                                pageSize={pageSize}
-                                currentPage={currentPage}
-                                onPageChange={this.handlePageChange}
-                            />
+                            <div className="col-md-9 col-sm-11 col-lg-9 p-2">
+                                <div className="row align-items-end">
+                                    <div className="col">
+                                        <Input 
+                                            name='search'
+                                            label='Search'
+                                            type='text'
+                                            value={this.state.search}
+                                            autoFocus={true}
+                                            onChange={this.handleSearch}
+                                        />                                     
+                                    </div>
+                                    <div className="col-3">
+                                        {
+                                            admin ? 
+                                            (
+                                                <button onClick={this.handleNewMovie}
+                                                    className="btn btn-primary btn-sm mb-3">
+                                                    <i className="fa fa-plus"></i> New movie
+                                                </button>
+                                            )
+                                            : ''
+                                        }                                  
+                                        
+                                    </div>
+                                </div>
+                                <MoviesTable 
+                                    renderMovies={data}
+                                    sortColumn={sortColumn}
+                                    onLike={this.handleLike}
+                                    onDelete={this.handleDelete}
+                                    onSort={this.handleSort}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="row justify-content-md-center">
+                            <div className="col-auto m-2">
+                                <Pagination
+                                    itemsCount={totalCount}
+                                    pageSize={pageSize}
+                                    currentPage={currentPage}
+                                    onPageChange={this.handlePageChange}
+                                />
+                            </div>
                         </div>
                     </div>
                 </div>
+
             </React.Fragment>
         )
     }

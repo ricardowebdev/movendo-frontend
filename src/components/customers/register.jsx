@@ -2,6 +2,7 @@ import React from 'react';
 import Form from '../commom/form';
 import Joi from 'joi-browser';
 import { getCustomer, register, update } from "../../services/vidly/userService";
+import Loader from '../commom/loader';
 
 class Register extends Form {
     state = {
@@ -14,7 +15,8 @@ class Register extends Form {
             admin: false
         },
         errors: {},
-        title:  `Register at Vidly`
+        title:  `Register at Vidly`,
+        loading: 'true'
     }
 
     schema = {
@@ -56,31 +58,34 @@ class Register extends Form {
         }
 
         const title =  id ?  `Edit a customer` : 'Register at Vidly';
-        this.setState({ title, data });
+        this.setState({ title, data, loading: '' });
     }
   
     render() {
         const id = this.props.match.params.id || null;
-        return (   
-            <div className="container">
-                <div className="row">
-                    <div className="col">
-                        <h1>{ this.state.title }</h1>
+        return (
+            <React.Fragment>
+                <Loader isloading={this.state.loading}></Loader>
+                <div className={this.state.loading ? 'hidden' : 'container-fluid'}>
+                    <div className="row">
+                        <div className="col m-2">
+                            <h1>{ this.state.title }</h1>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-md-7 col-sm-9 col-lg-6 center m-2">                    
+                            <form onSubmit={this.handleSubmit} className="m-1">
+                                { this.renderInput('name', 'Name', 'text', true) }
+                                { this.renderInput('email', 'E-mail', 'email',) }
+                                { id ? this.renderInput('oldPassword', 'Old Password', 'password') : '' }
+                                { this.renderInput('password', 'Password', 'password') }
+                                { this.renderCheckbox('admin', 'Admin') }                          
+                                { this.renderButton('Save') }
+                            </form>
+                        </div>
                     </div>
                 </div>
-                <div className="row">
-                    <div className="col-7 center m-2">                    
-                        <form onSubmit={this.handleSubmit} className="m-1">
-                            { this.renderInput('name', 'Name', 'text', true) }
-                            { this.renderInput('email', 'E-mail', 'email',) }
-                            { id ? this.renderInput('oldPassword', 'Old Password', 'password') : '' }
-                            { this.renderInput('password', 'Password', 'password') }
-                            { this.renderCheckbox('admin', 'Admin') }                          
-                            { this.renderButton('Register') }
-                        </form>
-                    </div>
-                </div>
-            </div>
+            </React.Fragment>
         );
     }
 }

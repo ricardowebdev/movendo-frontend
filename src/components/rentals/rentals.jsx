@@ -4,6 +4,7 @@ import { getRentals, deleteRental } from '../../services/vidly/rentalService';
 import RentalsTable  from './rentalsTable';
 import paginate from '../utils/paginate';
 import Input from '../commom/input';
+import Loader from '../commom/loader';
 import _ from 'lodash';
 
 class Rentals extends Component {
@@ -12,12 +13,13 @@ class Rentals extends Component {
         pageSize: 10,
         currentPage: 1,
         sortColumn: { path: 'title', order: 'asc' },
-        search: ''
+        search: '',
+        loading: 'true'
     }
 
     async componentDidMount() {
         const rentals = await getRentals();
-        this.setState({ rentals })
+        this.setState({ rentals, loading: '' })
     }
 
     handlePageChange = (page) => {
@@ -74,18 +76,19 @@ class Rentals extends Component {
         const message = totalCount 
             ? `Showing ${totalCount} rentals in the database`
             : 'There are no rentals in the database.';
-
+                                   
         return (
             <React.Fragment>
-                <div className="container-fluid">
-                    <div className="row align-items-end m-2">
-                        <div className="col-auto">
+                <Loader isloading={this.state.loading}></Loader>
+                <div className={this.state.loading ? 'hidden' : 'container-fluid no-padding justify-content-center'}>
+                    <div className="row align-items-end m-2 p-1 mobile-content">
+                        <div className="col-md-10 col-sm-12 col-lg-11">
                             {message}
                         </div>
                     </div>
 
-                    <div className="row align-items-end m-2">
-                        <div className="col">
+                    <div className="row align-items-end m-2 p-1 mobile-content">
+                        <div className="col-sm-8 col-md-8 col-lg-7">
                             <Input 
                                 name='search'
                                 label='Search'
@@ -95,15 +98,16 @@ class Rentals extends Component {
                                 onChange={this.handleSearch}
                             />                                     
                         </div>
-                        <div className="col-3">                                    
+                        <div className="col-sm-3 col-md-3 col-lg-2">                                    
                             <button onClick={this.handleNewRental}
                                     className="btn btn-primary btn-sm mb-3">
                                 <i className="fa fa-plus"></i> New rental
                             </button>
                         </div>
                     </div>
-                    <div className="row align-items-end m-2">
-                        <div className="col">
+
+                    <div className="row align-items-center m-2 p-1 mobile-content">
+                        <div className="col-md-11 col-sm-12 col-lg-11">
                             <RentalsTable 
                                 renderRentals={data}
                                 sortColumn={sortColumn}
@@ -112,6 +116,17 @@ class Rentals extends Component {
                             />
                         </div>    
                     </div>
+
+                    <div className="row align-items-end m-2 p-1">
+                        <div className="col-md-10 col-sm-12 col-lg-11 p-2">
+                            <Pagination
+                                itemsCount={totalCount}
+                                pageSize={pageSize}
+                                currentPage={currentPage}
+                                onPageChange={this.handlePageChange}
+                            />
+                        </div>
+                    </div>                    
                 </div>
             </React.Fragment>
         );

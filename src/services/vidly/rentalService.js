@@ -1,12 +1,11 @@
 import http from '../common/httpService';
 import config from '../../config.json';
 import { toast } from 'react-toastify';
-const header = { 'Accept': 'application/json'};
-const uri = config.backendApi;
 
+const uri = config.backendApi;
   
 export async function insert(rental) {
-    return await http.post(`${uri}rentals`, rental, header)
+    return await http.post(`${uri}rentals`, rental)
     .then(function (response) {
         const rental = response.data;
         toast.info('Rental registered successfully');
@@ -19,7 +18,7 @@ export async function insert(rental) {
 }
 
 export async function update(id, rental) {
-    return await http.put(`${uri}rentals/${id}`, rental, header)
+    return await http.put(`${uri}rentals/${id}`, rental)
     .then(function (response) {
         const rental = response.data;
         toast.info('Rental updated successfully');
@@ -32,7 +31,7 @@ export async function update(id, rental) {
 }
 
 export async function getRentals() {
-    return await http.get(`${uri}rentals`, header)
+    return await http.get(`${uri}rentals`)
     .then(function (response) {
         const rentals = response.data;
         return rentals.filter(r => r);
@@ -44,7 +43,7 @@ export async function getRentals() {
 }
 
 export async function deleteRental(id) {
-    return await http.patch(`${uri}rentals/${id}`, header)
+    return await http.patch(`${uri}rentals/${id}`)
     .then(function (response) {
         return response ? true : false;
     })
@@ -55,7 +54,7 @@ export async function deleteRental(id) {
 }
 
 export async function getRental(id) {
-    return await http.get(`${uri}rentals/${id}`, header)
+    return await http.get(`${uri}rentals/${id}`)
     .then(function (response) {
         const rental = response.data;
         return rental;

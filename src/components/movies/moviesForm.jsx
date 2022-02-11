@@ -3,6 +3,7 @@ import Form from '../commom/form';
 import Joi from 'joi-browser';
 import { editMovie, getMovie, saveMovie } from "../../services/vidly/movieService";
 import { getGenres } from '../../services/vidly/genreService';
+import Loader from '../commom/loader';
 
 class MoviesForm extends Form {
     state = {
@@ -16,8 +17,12 @@ class MoviesForm extends Form {
             numberInStock: '',
             dailyRentalRate: '',
         },
+        selecteds: {
+            genreId: { value: '', label: '' }
+        },
         errors: {},
         title: 'Add a new Movie',
+        loading: 'true'
     }
 
     schema = {
@@ -44,6 +49,7 @@ class MoviesForm extends Form {
         const genres = [{ id: '', name: ''}, ...allGenres];
         const id = this.props.match.params.id || null;
         const data = { ...this.state.data };
+        let { genreId } = { ...this.state.selecteds };
 
         if (id) {
             const result = await getMovie(id);
@@ -56,26 +62,52 @@ class MoviesForm extends Form {
             data.numberInStock = result.numberInStock;
             data.dailyRentalRate = result.dailyRentalRate;
             data.id = id;
+
+            const genre = genres.filter(g => ( result.genre.id === g.id ));
+            genreId = {
+                value: result.genre.id,
+                label: genre[0].name,
+                name: 'genreId',
+                path: 'id',
+            }
         }
 
-        const title =  id ?  `Edit Movie ${id}` : 'Add a new movie';
-        this.setState({ genres, title, data });
+        const selecteds = { genreId }        
+
+        const title =  id ?  `Edit a Movie` : 'Add a new movie';
+        this.setState({ genres, title, data, loading: '', selecteds });
     }
     
     render() {   
+        const loading = this.state.loading;
         return (
-            <div className="container">
-                <div className="col-8 center">
-                    <h3 className="mt-3">{this.state.title}</h3>
-                    <form onSubmit={this.handleSubmit}>
-                        { this.renderInput('title', 'Title', 'text', true) }
-                        { this.renderSelect('genreId', 'Genre', this.state.genres, this.state.data.genreId)}
-                        { this.renderInput('numberInStock', 'Stock', 'number') }
-                        { this.renderInput('dailyRentalRate', 'Rate', 'number') }
-                        { this.renderButton('Save') }
-                    </form>
+            <React.Fragment>
+                <div className={ !loading ? 'hidden' : 'container-fluid'}>
+                    <div className="row">
+                        <div className="col m-2">
+                            <Loader isloading={loading}></Loader>
+                        </div>
+                    </div>
                 </div>
-            </div>
+                
+                <div className={loading ? 'hidden' : 'container-fluid'}>
+                    <div className="row">
+                        <div className="col m-2">
+                            <h1>{ this.state.title }</h1>
+                        </div>
+                    </div>
+
+                    <div className="col-md-7 col-sm-9 col-lg-6 center">
+                        <form onSubmit={this.handleSubmit}>
+                            { this.renderInput('title', 'Title', 'text', true) }
+                            { this.renderSearchSelect('genreId', 'Genre', this.state.genres, this.state.selecteds.genreId, 'id', 'name', this.state.data.genreId)}
+                            { this.renderInput('numberInStock', 'Stock', 'number') }
+                            { this.renderInput('dailyRentalRate', 'Rate', 'number') }
+                            { this.renderButton('Save') }
+                        </form>
+                    </div>
+                </div>
+            </React.Fragment>
         );
     }
 }

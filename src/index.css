@@ -28,3 +28,67 @@ code {
 .no-margin {
   margin: 0px !important;
 }
+
+.no-padding {
+  padding: 0px !important;
+}
+
+.hidden {
+  display: none;
+}
+
+a {
+  color: white;
+}
+
+.szh-menu-button {
+  color: white !important;
+  border: 0px !important;
+  background-color: #007bff !important;
+}
+
+.logo {
+  max-height: 45px;
+}
+
+.fc-primary {
+  color: #007bff !important;
+}
+
+a:hover,
+.link:hover {
+  text-decoration: none !important;
+  color: black !important;
+}
+
+td {
+  word-break: break-all;
+}
+
+@media screen and (max-width: 700px) {
+  td {
+    font-size: 12px;
+  }
+
+  th {
+    font-size: 12px;
+  }
+
+  .mobile-content {
+    margin: 0px !important;
+  }
+
+  .col-sm-12,
+  .col-sm-8,
+  .col-sm-3 {
+    padding: 2px !important;
+  }
+}
+
+.title {
+  font-size: 24px;
+}
+
+.fc-red {
+  color: red;
+}

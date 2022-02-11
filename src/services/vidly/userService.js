@@ -1,12 +1,11 @@
 import http from '../common/httpService';
 import config from '../../config.json';
 import { toast } from 'react-toastify';
-const header = { 'Accept': 'application/json'};
+
 const uri = config.backendApi;
 
-  
 export async function register(user) {
-    return await http.post(`${uri}users`, user, header)
+    return await http.post(`${uri}users`, user)
     .then(function (response) {
         const user = response.data;
         toast.info('User registered successfully');
@@ -19,7 +18,7 @@ export async function register(user) {
 }
 
 export async function update(id, user) {
-    return await http.put(`${uri}users/${id}`, user, header)
+    return await http.put(`${uri}users/${id}`, user)
     .then(function (response) {
         const user = response.data;
         toast.info('User updated successfully');
@@ -32,7 +31,7 @@ export async function update(id, user) {
 }
 
 export async function getCustomers() {
-    return await http.get(`${uri}users`, header)
+    return await http.get(`${uri}users`)
     .then(function (response) {
         const users = response.data;
         return users.filter(u => u);
@@ -44,7 +43,7 @@ export async function getCustomers() {
 }
 
 export async function deleteCustomer(id) {
-    return await http.patch(`${uri}users/${id}`, header)
+    return await http.patch(`${uri}users/${id}`)
     .then(function (response) {
         return response ? true : false;
     })
@@ -55,7 +54,7 @@ export async function deleteCustomer(id) {
 }
 
 export async function getCustomer(id) {
-    return await http.get(`${uri}users/${id}`, header)
+    return await http.get(`${uri}users/${id}`)
     .then(function (response) {
         const user = response.data[0];
         return user;

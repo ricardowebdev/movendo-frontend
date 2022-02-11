@@ -7,7 +7,7 @@ class CustomersTable extends Component {
         { 
             path: 'name',
             label: 'Name',
-            content: customer => <Link to={`/customer/${customer.id}`} ><i className="fa fa-pencil"></i> { customer.name }</Link>
+            content: customer => <Link to={`/customer/${customer.id}`} ><span className="fc-primary link"><i className="fa fa-pencil"></i> { customer.name }</span></Link>
         },
         { path: 'email', label: 'E-mail' },
         { 
@@ -17,7 +17,7 @@ class CustomersTable extends Component {
         },
         {
             key: 'delete',
-            content: customer => <button onClick={() => this.props.onDelete(customer)} className="btn btn-danger btn-sm"><i className="fa fa-trash"></i> Remove</button>
+            content: customer => <button onClick={() => this.props.onDelete(customer)} className="btn btn-danger btn-sm"><i className="fa fa-trash"></i></button>
         },
     ]
     

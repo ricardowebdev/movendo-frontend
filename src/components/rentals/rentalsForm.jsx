@@ -4,6 +4,7 @@ import Joi from 'joi-browser';
 import { getRental, insert, update } from "../../services/vidly/rentalService";
 import { getMovies } from "../../services/vidly/movieService";
 import { getCustomers } from "../../services/vidly/userService";
+import Loader from '../commom/loader';
 
 class RentalsForm extends Form {
     state = {
@@ -17,7 +18,12 @@ class RentalsForm extends Form {
         users: [],
         movies: [],
         errors: {},
-        title:  `Rental a movie`
+        selecteds: {
+            movieId: { value: '', label: '' },
+            userId: { value: '', label: '' },
+        },
+        title:  `Rental a movie`,
+        loading: 'true'
     }
 
     schema = {
@@ -41,14 +47,13 @@ class RentalsForm extends Form {
 
     async componentDidMount() {
         const id = this.props.match.params.id || null;
-        console.log(id);
-        const data = { ...this.state.data };
+        const { data } = { ...this.state };
+        let { movieId, userId } = { ...this.state.selecteds };
         const movies =  [{ id: 0, title: ''}, ...await getMovies()];
         const users = [{ id: 0, name: ''}, ...await getCustomers()];
 
         if (id) {
             const result = await getRental(id);
-            console.log(result);
             if (!result) {
                 this.props.history.push('/not-found');
             }
@@ -58,33 +63,53 @@ class RentalsForm extends Form {
             data.returned = result.returned ? true : false;
             data.rentalDays = result.rentalDays;
             data.id = id;
+
+            const movie = movies.filter(m => ( result.movieId === m.id ));
+            movieId = {
+                value: result.movieId,
+                label: movie[0].title,
+                name: 'userId',
+                path: 'id',
+            }
+            
+            const user = users.filter(u => ( result.userId === u.id ));
+            userId = {
+                value: result.userId,
+                label: user[0].name,
+                name: 'movieId',
+                path: 'id',
+            }
         }
 
+        const selecteds = { movieId: movieId, userId: userId }
+
         const title =  id ?  `Edit a rental` : 'Insert a rental';
-        this.setState({ title, data, movies, users });
+        this.setState({ title, data, movies, users, selecteds, loading: '' });
     }
   
     render() {
-        const id = this.props.match.params.id || null;
-        return (   
-            <div className="container">
-                <div className="row">
-                    <div className="col">
-                        <h1>{ this.state.title }</h1>
+        return (
+            <React.Fragment>
+                <Loader isloading={this.state.loading}></Loader>
+                <div className={this.state.loading ? 'hidden' : 'container-fluid'}>
+                    <div className="row">
+                        <div className="col m-2">
+                            <h1>{ this.state.title }</h1>
+                        </div>
+                    </div>
+                    <div className="row">
+                        <div className="col-md-7 col-sm-9 col-lg-6 center m-2">                    
+                            <form onSubmit={this.handleSubmit} className="m-1">
+                                { this.renderSearchSelect('userId', 'User', this.state.users, this.state.selecteds.userId, 'id', 'name', this.state.data.userId)}
+                                { this.renderSearchSelect('movieId', 'Movies', this.state.movies, this.state.selecteds.movieId, 'id', 'title', this.state.data.movieId)}
+                                { this.renderInput('rentalDays', 'Rental Days', 'number') }
+                                { this.renderCheckbox('returned', 'Returned') }                          
+                                { this.renderButton('Save') }
+                            </form>
+                        </div>
                     </div>
                 </div>
-                <div className="row">
-                    <div className="col-7 center m-2">                    
-                        <form onSubmit={this.handleSubmit} className="m-1">
-                            { this.renderSelect('userId', 'User', this.state.users, this.state.data.userId, 'id', 'name', this.state.data.userId)}
-                            { this.renderSelect('movieId', 'Movies', this.state.movies, this.state.data.movieId, 'id', 'title', this.state.data.movieId)}
-                            { this.renderInput('rentalDays', 'Rental Days', 'number') }
-                            { this.renderCheckbox('returned', 'Returned') }                          
-                            { this.renderButton('Register') }
-                        </form>
-                    </div>
-                </div>
-            </div>
+            </React.Fragment>
         );
     }
 }
